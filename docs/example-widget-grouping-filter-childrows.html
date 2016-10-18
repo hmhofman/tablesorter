@@ -2,14 +2,14 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>jQuery plugin: Tablesorter 2.0 - Grouping + Filter widget with child rows</title>
+	<title>jQuery tablesorter 2.0 - Grouping + Filter widget with child rows</title>
 
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
-	<link class="ui-theme" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/cupertino/jquery-ui.css">
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link class="ui-theme" rel="stylesheet" href="css/jquery-ui.min.css">
+	<script src="js/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="css/jq.css">
 	<link href="css/prettify.css" rel="stylesheet">
 	<script src="js/prettify.js"></script>
@@ -115,15 +115,15 @@ tr.group-header.collapsed td i {
 
 	<p class="tip">
 		<em>NOTE!</em>
-		<ul>
-			<li>As of <span class="version updated">v2.15.12</span>,
-				<ul>
-					<li>Parents of child rows now have a <code>tablesorter-hasChildRow</code> class name added.</li>
-					<li><span class="label label-info">NOTE!</span> A new css definition was added to every default theme; the "filtered" class name (set by the <code>filter_filteredRow</code> widgetOption) has been added to properly hide/show child rows when filtered.</li>
-				</ul>
-			</li>
-		</ul>
 	</p>
+	<ul>
+		<li>As of <span class="version updated">v2.15.12</span>,
+			<ul>
+				<li>Parents of child rows now have a <code>tablesorter-hasChildRow</code> class name added.</li>
+				<li><span class="label label-info">NOTE!</span> A new css definition was added to every default theme; the "filtered" class name (set by the <code>filter_filteredRow</code> widgetOption) has been added to properly hide/show child rows when filtered.</li>
+			</ul>
+		</li>
+	</ul>
 
 <h1>Demo</h1>
 
@@ -139,7 +139,7 @@ tr.group-header.collapsed td i {
 	</thead>
 	<tbody>
 
-		<tr><td rowspan="3"><a href="#" class="toggle">Good Toys<a></td><td>USA</td><td>80%</td><td></td><td></td></tr>
+		<tr><td rowspan="3"><a href="#" class="toggle">Good Toys</a></td><td>USA</td><td>80%</td><td></td><td></td></tr>
 		<tr class="tablesorter-childRow"><td>1561651</td><td>finish</td><td>0</td><td>$5</td></tr>
 		<tr class="tablesorter-childRow"><td>558815</td><td>finish</td><td>0</td><td>$55</td></tr>
 
@@ -147,25 +147,25 @@ tr.group-header.collapsed td i {
 		<tr class="tablesorter-childRow"><td>21485213</td><td>in progress</td><td>2</td><td>$7</td></tr>
 		<tr class="tablesorter-childRow"><td>12547854</td><td>finish</td><td>0</td><td>$18</td></tr>
 
-		<tr><td rowspan="5"><a href="#" class="toggle">Cycle Initial Bike Company<a></td><td>USA</td><td>36%</td><td></td><td></td></tr>
+		<tr><td rowspan="5"><a href="#" class="toggle">Cycle Initial Bike Company</a></td><td>USA</td><td>36%</td><td></td><td></td></tr>
 		<tr class="tablesorter-childRow"><td>12574521</td><td>in progress</td><td>1</td><td>$5</td></tr>
 		<tr class="tablesorter-childRow"><td>7895452</td><td>in progress</td><td>2</td><td>$78</td></tr>
 		<tr class="tablesorter-childRow"><td>1542021</td><td>finish</td><td>0</td><td>$28</td></tr>
 		<tr class="tablesorter-childRow"><td>4489885</td><td>finish</td><td>0</td><td>$18</td></tr>
 
-		<tr><td rowspan="5"><a href="#" class="toggle">Sports Store<a></td><td>USA</td><td>90%</td><td></td><td></td></tr>
+		<tr><td rowspan="5"><a href="#" class="toggle">Sports Store</a></td><td>USA</td><td>90%</td><td></td><td></td></tr>
 		<tr class="tablesorter-childRow"><td>18915</td><td>in progress</td><td>2</td><td>$5</td></tr>
 		<tr class="tablesorter-childRow"><td>5402574</td><td>in progress</td><td>2</td><td>$78</td></tr>
 		<tr class="tablesorter-childRow"><td>26478</td><td>finish</td><td>0</td><td>$28</td></tr>
 		<tr class="tablesorter-childRow"><td>25682</td><td>finish</td><td>0</td><td>$18</td></tr>
 
-		<tr><td rowspan="5"><a href="#" class="toggle">Locks Company<a></td><td>UK</td><td>24%</td><td></td><td></td></tr>
+		<tr><td rowspan="5"><a href="#" class="toggle">Locks Company</a></td><td>UK</td><td>24%</td><td></td><td></td></tr>
 		<tr class="tablesorter-childRow"><td>18915</td><td>in progress</td><td>2</td><td>$5</td></tr>
 		<tr class="tablesorter-childRow"><td>5402574</td><td>in progress</td><td>1</td><td>$78</td></tr>
 		<tr class="tablesorter-childRow"><td>26478</td><td>finish</td><td>0</td><td>$28</td></tr>
 		<tr class="tablesorter-childRow"><td>25682</td><td>finish</td><td>0</td><td>$18</td></tr>
 
-		<tr><td rowspan="3"><a href="#" class="toggle">Famous Bike Shop<a></td><td>UK</td><td>12%</td><td></td><td></td></tr>
+		<tr><td rowspan="3"><a href="#" class="toggle">Famous Bike Shop</a></td><td>UK</td><td>12%</td><td></td><td></td></tr>
 		<tr class="tablesorter-childRow"><td>185406</td><td>in progress</td><td>2</td><td>$5</td></tr>
 		<tr class="tablesorter-childRow"><td>541265</td><td>in progress</td><td>2</td><td>$78</td></tr>
 
@@ -187,6 +187,8 @@ tr.group-header.collapsed td i {
 	<div id="html">
 		<pre class="prettyprint lang-html"></pre>
 	</div>
+
+</div>
 
 </body>
 </html>

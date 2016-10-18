@@ -2,10 +2,10 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>jQuery plugin: Tablesorter 2.0 - Pager plugin, Custom Pagination</title>
+	<title>jQuery tablesorter 2.0 - Pager plugin, Custom Pagination</title>
 
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	<script src="../docs/js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
 	<link rel="stylesheet" href="../docs/css/jq.css">
@@ -16,6 +16,7 @@
 	<!-- Tablesorter: required -->
 	<link rel="stylesheet" href="../css/theme.blue.css">
 	<script src="../js/jquery.tablesorter.js"></script>
+	<script src="../js/jquery.tablesorter.widgets.js"></script>
 
 	<!-- Tablesorter: optional -->
 	<link rel="stylesheet" href="../addons/pager/jquery.tablesorter.pager.css">
@@ -62,22 +63,23 @@
 		aroundCurrent  : 1,                        // number of pages surrounding the current page
 		link           : '<a href="#">{page}</a>', // page element; use {page} to include the page number
 		currentClass   : 'current',                // current page class name
-		adjacentSpacer : ' | ',                    // spacer for page numbers next to each other
-		distanceSpacer : ' \u2026 ',               // spacer for page numbers away from each other (ellipsis &amp;hellip;)
-		addKeyboard    : true                      // add left/right keyboard arrows to change current page
+		adjacentSpacer : '<span> | </span>',       // spacer for page numbers next to each other
+		distanceSpacer : '<span> &#133; <span>',   // spacer for page numbers away from each other (ellipsis = &amp;#133;)
+		addKeyboard    : true,                     // use left,right,up,down,pageUp,pageDown,home, or end to change current page
+		pageKeyStep    : 10                        // page step to use for pageUp and pageDown
 	});
 
 	// initialize tablesorter & pager
 	$table
 		.tablesorter({
 			theme: 'blue',
-			widgets: ['zebra', 'columns']
+			widgets: ['zebra', 'columns', 'filter']
 		})
 		.tablesorterPager({
 			// target the pager markup - see the HTML block below
 			container: $pager,
 			size: 10,
-			output: 'showing: {startRow} to {endRow} ({totalRows})'
+			output: 'showing: {startRow} to {endRow} ({filteredRows})'
 		});
 
 });
@@ -88,24 +90,38 @@
 		<h1>table<em>sorter</em></h1>
 		<h2>Pager plugin, Custom Pagination</h2>
 		<h3>Flexible client-side table sorting</h3>
-		<a href="index.html">Back to documentation</a>
+		<a href="../docs/index.html">Back to documentation</a>
 	</div>
 
 	<div id="main">
-<!--
-		<p class="tip">
-			<em>NOTE!</em> Lorem Ipsum
-			<ul>
-				<li>text.</li>
-				<li>text.</li>
-			</ul>
-		</p>
--->
+
+	<p class="tip">
+		<em>NOTE!</em>
+		<ul>
+			<li>Modified in <span class="version">v2.27.6</span>
+				<ul>
+					<li>Fixed issues with page less than one being shown.</li>
+					<li>The <code>ends</code> and <code>aroundCurrent</code> works properly when values are set to zero.</li>
+					<li>Modified <code>adjacentSpacer</code> and <code>distanceSpacer</code> to include surrounding span element.</li>
+					<li>Using the keyboard has changed!
+						<ul>
+							<li><span class="label warning">NOTE</span> The keyboard keys will only work IF a pager element has focus.</li>
+							<li>The <code>addKeyboard</code> function now includes <kbd>left</kbd>, <kbd>right</kbd>, <kbd>up</kbd>, <kbd>down</kbd>, <kbd>pageUp</kbd>, <kbd>pageDown</kbd>, <kbd>Home</kbd> and <kbd>End</kbd>.</li>
+							<li>A new <code>pageKeyStep</code> option was added to allow setting the number of pages to skip on <kbd>pageUp</kbd> or <kbd>pageDown</kbd>.</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Modified in <span class="version">v2.17.1</span> to properly work with either the pager addon or pager widget.</li>
+			<li>In <span class="version">v2.16.4</span>, code was updated to correctly count process pages.</li>
+		</ul>
+	</p>
+
 	<h1>Demo</h1>
 	<br>
 <!-- pager -->
 <div class="pager">
-	<span class="pagedisplay"></span> 
+	<span class="pagedisplay"></span>
 </div>
 
 <table class="tablesorter">
@@ -125,11 +141,11 @@
 				</span>
 				<span class="right">
 					<span class="prev">
-						<img src="http://mottie.github.com/tablesorter/addons/pager/icons/prev.png" /> Prev&nbsp;
+						<img src="https://mottie.github.com/tablesorter/addons/pager/icons/prev.png" /> Prev&nbsp;
 					</span>
 					<span class="pagecount"></span>
 					&nbsp;<span class="next">Next
-						<img src="http://mottie.github.com/tablesorter/addons/pager/icons/next.png" />
+						<img src="https://mottie.github.com/tablesorter/addons/pager/icons/next.png" />
 					</span>
 				</span>
 				</div>
@@ -1196,4 +1212,3 @@
 
 </body>
 </html>
-

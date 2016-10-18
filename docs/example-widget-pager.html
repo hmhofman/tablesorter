@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
- <meta charset="utf-8">
-	<title>jQuery plugin: Tablesorter 2.0 - Pager Widget</title>
+	<meta charset="utf-8">
+	<title>jQuery tablesorter 2.0 - Pager Widget</title>
 
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	<script src="js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
 	<link href="css/jq.css" rel="stylesheet">
@@ -24,7 +24,9 @@
 
 	<script id="js">$(function(){
 
-	$("table")
+	var $table = $('table');
+
+	$table
 
 		// Initialize tablesorter
 		// ***********************
@@ -36,8 +38,9 @@
 			widgetOptions: {
 
 				// output default: '{page}/{totalPages}'
-				// possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
-				pager_output: '{startRow} to {endRow} of {totalRows} rows', // '{page}/{totalPages}'
+				// possible variables: {size}, {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+				// also {page:input} & {startRow:input} will add a modifiable input in place of the value
+				pager_output: '{startRow:input} to {endRow} of {totalRows} rows', // '{page}/{totalPages}'
 
 				// apply disabled classname to the pager arrows when the rows at either extreme is visible
 				pager_updateArrows: true,
@@ -53,7 +56,7 @@
 
 				// if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
 				// table row set to a height to compensate; default is false
-				pager_fixedHeight: false,
+				pager_fixedHeight: true,
 
 				// remove rows from the table to speed up the sort of large tables.
 				// setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
@@ -69,6 +72,11 @@
 
 				// modify the url after all processing has been applied
 				pager_customAjaxUrl: function(table, url) { return url; },
+
+				// ajax error callback from $.tablesorter.showError function
+				// pager_ajaxError: function( config, xhr, settings, exception ){ return exception; };
+				// returning false will abort the error message
+				pager_ajaxError: null,
 
 				// modify the $.ajax object to allow complete control over your ajax requests
 				pager_ajaxObject: {
@@ -90,10 +98,10 @@
 				// ]
 				pager_ajaxProcessing: function(ajax){ return [ 0, [], null ]; },
 
-				// css class names of pager arrows
+				// css class names that are added
 				pager_css: {
-					container   : 'tablesorter-pager',
-					errorRow    : 'tablesorter-errorRow', // error information row (don't include period at beginning)
+					container   : 'tablesorter-pager',    // class added to make included pager.css file work
+					errorRow    : 'tablesorter-errorRow', // error information row (don't include period at beginning); styled in theme file
 					disabled    : 'disabled'              // class added to arrows @ extremes (i.e. prev/first arrows "disabled" on first page)
 				},
 
@@ -104,7 +112,7 @@
 					prev        : '.prev',        // previous page arrow
 					next        : '.next',        // next page arrow
 					last        : '.last',        // go to last page arrow
-					goto        : '.gotoPage',    // go to page selector - select dropdown that sets the current page
+					gotoPage    : '.gotoPage',    // go to page selector - select dropdown that sets the current page
 					pageDisplay : '.pagedisplay', // location of where the "output" is displayed
 					pageSize    : '.pagesize'     // page size selector - select dropdown that sets the "size" option
 				}
@@ -144,7 +152,7 @@
 			});
 			num = num + 2;
 			$row = $(r);
-			$('table')
+			$table
 				.find('tbody').append($row)
 				.trigger('addRows', [$row]);
 			return false;
@@ -152,15 +160,14 @@
 
 		// Delete a row
 		// *************
-		$('table').delegate('button.remove', 'click' ,function(){
-			var t = $('table');
+		$table.delegate('button.remove', 'click' ,function(){
 			// disabling the pager will restore all table rows
-			// t.trigger('disable.pager');
+			// $table.trigger('disablePager');
 			// remove chosen row
 			$(this).closest('tr').remove();
 			// restore pager
-			// t.trigger('enable.pager');
-			t.trigger('update');
+			// $table.trigger('enablePager');
+			$table.trigger('update');
 			return false;
 		});
 
@@ -170,14 +177,10 @@
 			// Exterminate, annhilate, destroy! http://www.youtube.com/watch?v=LOqn8FxuyFs
 			var $t = $(this);
 			if (/Destroy/.test( $t.text() )){
-				$('table')[0].config.widgets = ['zebra'];
-				$('table').trigger('refreshWidgets');
-				
-				//.trigger('destroy.pager');
+				$table.trigger('destroyPager');
 				$t.text('Restore Pager');
 			} else {
-				$('table')[0].config.widgets = ['zebra', 'pager'];
-				$('table').trigger('applyWidgets');
+				$('table').trigger('applyWidgetId', 'pager');
 				$t.text('Destroy Pager');
 			}
 			return false;
@@ -187,13 +190,29 @@
 		// **************
 		$('.toggle').click(function(){
 			var mode = /Disable/.test( $(this).text() );
-			$('table').trigger( (mode ? 'disable' : 'enable') + '.pager');
+			// using disablePager or enablePager
+			$table.trigger( (mode ? 'disable' : 'enable') + 'Pager');
 			$(this).text( (mode ? 'Enable' : 'Disable') + 'Pager');
 			return false;
 		});
-		$('table').bind('pagerChange', function(){
+		$table.bind('pagerChange', function(){
 			// pager automatically enables when table is sorted.
 			$('.toggle').text('Disable Pager');
+		});
+
+		// clear storage (page & size)
+		$('.clear-pager-data').click(function(){
+			// clears user set page & size from local storage, so on page
+			// reload the page & size resets to the original settings
+			$.tablesorter.storage( $table, 'tablesorter-pager', '' );
+		});
+
+		// go to page 1 showing 10 rows
+		$('.goto').click(function(){
+			// triggering "pageAndSize" without parameters will reset the
+			// pager to page 1 and the original set size (10 by default)
+			// $('table').trigger('pageAndSize')
+			$table.trigger('pageAndSize', [1, 10]);
 		});
 
 });</script>
@@ -210,23 +229,29 @@
 
 		<p class="tip">
 			<em>NOTE!</em>
-			<ul>
-				<li>This pager WIDGET <em>can not</em> be applied to the original tablesorter.</li>
-				<li>Do not use this widget along with the pager plugin.</li>
-				<li>The pager.css file also works with this pager widget.</li>
-				<li>This widget is still in <span class="beta">development</span> as it has not been throughly tested.</li>
-				<li>Extensive documentation has not been included, as all functioning is essentially identical to the pager addon, but here are some important differences:
-					<ul>
-						<li>All of the options are now set within the <code>widgetOptions</code>.</li>
-						<li>Pager events (pagerChange pagerComplete pagerInitialized pageMoved) now return <code>table.config</code> instead of <code>table.config.pager</code>.</li>
-						<li>Most option names have only been modified by adding <code>pager_</code> as a prefix.</li>
-						<li>Exceptions include moving all applied css class names into a <code>pager_css</code> option and all selectors into <code>pager_selectors</code>, including the original <code>container</code> option.</li>
-						<li>Because I stopped trying so hard to make widgets compatible with jQuery v1.2.6, this widget requires at least v1.3+.</li>
-						<li>See the Javascript code below for a full example.</li>
-					</ul>
-				</li>
-			</ul>
 		</p>
+		<ul>
+			<li>In <span class="version updated">v2.26.0</span>, a page size of "all" instead of a specific number will be saved and used on reload. Also, ajax interaction will pass a size of "all" which may break current server methods on number of pages to return.</li>
+			<li>In <span class="version updated">v2.25.4</span>, updated example to use <code>applyWidgetId</code> to re-apply the pager widget after being destroyed.</li>
+			<li>In <span class="version updated">v2.24.0</span>, a page size select option with a value of "all" will display all rows - not recommended for ajax interactions!</li>
+			<li>In <span class="version">v2.19.0</span>, added <code>pageAndSize</code> method which allows setting both the pager page &amp; size.</li>
+			<li>In <span class="version">v2.17.6</span>, added <code>{startRow:input}</code> and <code>{page:input}</code> variables to the <code>output</code> option.<p></p></li>
+
+			<li>This pager WIDGET <em>can not</em> be applied to the original tablesorter.</li>
+			<li>Do not use this widget along with the pager plugin.</li>
+			<li>The pager.css file also works with this pager widget.</li>
+			<li>This widget is still in <span class="beta">development</span> as it has not been throughly tested.</li>
+			<li>Extensive documentation has not been included, as all functioning is essentially identical to the pager addon, but here are some important differences:
+				<ul>
+					<li>All of the options are now set within the <code>widgetOptions</code>.</li>
+					<li>Pager events (pagerChange pagerComplete pagerInitialized pageMoved) now return <code>table.config</code> instead of <code>table.config.pager</code>.</li>
+					<li>Most option names have only been modified by adding <code>pager_</code> as a prefix.</li>
+					<li>Exceptions include moving all applied css class names into a <code>pager_css</code> option and all selectors into <code>pager_selectors</code>, including the original <code>container</code> option.</li>
+					<li>Because I stopped trying so hard to make widgets compatible with jQuery v1.2.6, this widget requires at least v1.3+.</li>
+					<li>See the Javascript code below for a full example.</li>
+				</ul>
+			</li>
+		</ul>
 
 		<h1>Triggered Events</h1>
 		<ul id="display">
@@ -238,7 +263,7 @@
 	<h1>Demo</h1>
 	<br>
 	<button type="button">Add Rows</button> <button type="button" class="toggle">Disable Pager</button> <button type="button">Destroy Pager</button>
-	<br><br>
+	<p><button type="button" class="clear-pager-data">Clear saved pager data</button> <button type="button" class="goto">Set page 1 &amp; size 10</button></p>
 	<div class="pager">
 		<img src="../addons/pager/icons/first.png" class="first" alt="First" />
 		<img src="../addons/pager/icons/prev.png" class="prev" alt="Prev" />
@@ -250,6 +275,7 @@
 			<option value="20">20</option>
 			<option value="30">30</option>
 			<option value="40">40</option>
+			<option value="all">All Rows</option>
 		</select>
 		<select class="gotoPage" title="Select page number"></select>
 	</div>
@@ -280,226 +306,28 @@
 		</tr>
 	</tfoot>
 	<tbody>
-		<tr>
-			<td>Student01</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>80</td>
-			<td>70</td>
-			<td>75</td>
-			<td>80</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student02</td>
-			<td>Mathematics</td>
-			<td>male</td>
-			<td>90</td>
-			<td>88</td>
-			<td>100</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student03</td>
-			<td>Languages</td>
-			<td>female</td>
-			<td>85</td>
-			<td>95</td>
-			<td>80</td>
-			<td>85</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student04</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>60</td>
-			<td>55</td>
-			<td>100</td>
-			<td>100</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student05</td>
-			<td>Languages</td>
-			<td>female</td>
-			<td>68</td>
-			<td>80</td>
-			<td>95</td>
-			<td>80</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student06</td>
-			<td>Mathematics</td>
-			<td>male</td>
-			<td>100</td>
-			<td>99</td>
-			<td>100</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student07</td>
-			<td>Mathematics</td>
-			<td>male</td>
-			<td>85</td>
-			<td>68</td>
-			<td>90</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student08</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>100</td>
-			<td>90</td>
-			<td>90</td>
-			<td>85</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student09</td>
-			<td>Mathematics</td>
-			<td>male</td>
-			<td>80</td>
-			<td>50</td>
-			<td>65</td>
-			<td>75</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student10</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>85</td>
-			<td>100</td>
-			<td>100</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student11</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>86</td>
-			<td>85</td>
-			<td>100</td>
-			<td>100</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student12</td>
-			<td>Mathematics</td>
-			<td>female</td>
-			<td>100</td>
-			<td>75</td>
-			<td>70</td>
-			<td>85</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student13</td>
-			<td>Languages</td>
-			<td>female</td>
-			<td>100</td>
-			<td>80</td>
-			<td>100</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student14</td>
-			<td>Languages</td>
-			<td>female</td>
-			<td>50</td>
-			<td>45</td>
-			<td>55</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student15</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>95</td>
-			<td>35</td>
-			<td>100</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student16</td>
-			<td>Languages</td>
-			<td>female</td>
-			<td>100</td>
-			<td>50</td>
-			<td>30</td>
-			<td>70</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student17</td>
-			<td>Languages</td>
-			<td>female</td>
-			<td>80</td>
-			<td>100</td>
-			<td>55</td>
-			<td>65</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student18</td>
-			<td>Mathematics</td>
-			<td>male</td>
-			<td>30</td>
-			<td>49</td>
-			<td>55</td>
-			<td>75</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student19</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>68</td>
-			<td>90</td>
-			<td>88</td>
-			<td>70</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student20</td>
-			<td>Mathematics</td>
-			<td>male</td>
-			<td>40</td>
-			<td>45</td>
-			<td>40</td>
-			<td>80</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student21</td>
-			<td>Languages</td>
-			<td>male</td>
-			<td>50</td>
-			<td>45</td>
-			<td>100</td>
-			<td>100</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
-		<tr>
-			<td>Student22</td>
-			<td>Mathematics</td>
-			<td>male</td>
-			<td>100</td>
-			<td>99</td>
-			<td>100</td>
-			<td>90</td>
-			<td><button type="button" class="remove" title="Remove this row">X</button></td>
-		</tr>
+		<tr><td>Student01</td><td>Languages</td><td>male</td><td>80</td><td>70</td><td>75</td><td>80</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student02</td><td>Mathematics</td><td>male</td><td>90</td><td>88</td><td>100</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student03</td><td>Languages</td><td>female</td><td>85</td><td>95</td><td>80</td><td>85</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student04</td><td>Languages</td><td>male</td><td>60</td><td>55</td><td>100</td><td>100</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student05</td><td>Languages</td><td>female</td><td>68</td><td>80</td><td>95</td><td>80</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student06</td><td>Mathematics</td><td>male</td><td>100</td><td>99</td><td>100</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student07</td><td>Mathematics</td><td>male</td><td>85</td><td>68</td><td>90</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student08</td><td>Languages</td><td>male</td><td>100</td><td>90</td><td>90</td><td>85</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student09</td><td>Mathematics</td><td>male</td><td>80</td><td>50</td><td>65</td><td>75</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student10</td><td>Languages</td><td>male</td><td>85</td><td>100</td><td>100</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student11</td><td>Languages</td><td>male</td><td>86</td><td>85</td><td>100</td><td>100</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student12</td><td>Mathematics</td><td>female</td><td>100</td><td>75</td><td>70</td><td>85</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student13</td><td>Languages</td><td>female</td><td>100</td><td>80</td><td>100</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student14</td><td>Languages</td><td>female</td><td>50</td><td>45</td><td>55</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student15</td><td>Languages</td><td>male</td><td>95</td><td>35</td><td>100</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student16</td><td>Languages</td><td>female</td><td>100</td><td>50</td><td>30</td><td>70</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student17</td><td>Languages</td><td>female</td><td>80</td><td>100</td><td>55</td><td>65</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student18</td><td>Mathematics</td><td>male</td><td>30</td><td>49</td><td>55</td><td>75</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student19</td><td>Languages</td><td>male</td><td>68</td><td>90</td><td>88</td><td>70</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student20</td><td>Mathematics</td><td>male</td><td>40</td><td>45</td><td>40</td><td>80</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student21</td><td>Languages</td><td>male</td><td>50</td><td>45</td><td>100</td><td>100</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
+		<tr><td>Student22</td><td>Mathematics</td><td>male</td><td>100</td><td>99</td><td>100</td><td>90</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
 		<tr><td>Student23</td><td>Mathematics</td><td>male</td><td>82</td><td>77</td><td>0</td><td>79</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
 		<tr><td>Student24</td><td>Languages</td><td>female</td><td>100</td><td>91</td><td>13</td><td>82</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
 		<tr><td>Student25</td><td>Mathematics</td><td>male</td><td>22</td><td>96</td><td>82</td><td>53</td><td><button type="button" class="remove" title="Remove this row">X</button></td></tr>
@@ -542,6 +370,7 @@
 		<option value="20">20</option>
 		<option value="30">30</option>
 		<option value="40">40</option>
+		<option value="all">All Rows</option>
 	</select>
 	<select class="gotoPage" title="Select page number"></select>
 </div>
@@ -599,7 +428,7 @@ td.tablesorter-pager {
 	<h1>HTML</h1>
 	<div id="html">
 		<pre class="prettyprint lang-html">&lt;!-- jQuery --&gt;
-&lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;js/jquery-latest.min.js&quot;&gt;&lt;/script&gt;
 
 &lt;!-- Tablesorter: required --&gt;
 &lt;link href=&quot;css/theme.blue.css&quot; rel=&quot;stylesheet&quot;&gt;
@@ -623,10 +452,11 @@ td.tablesorter-pager {
     &lt;img src=&quot;next.png&quot; class=&quot;next&quot;/&gt;
     &lt;img src=&quot;last.png&quot; class=&quot;last&quot;/&gt;
     &lt;select class=&quot;pagesize&quot;&gt;
-      &lt;option selected=&quot;selected&quot; value=&quot;10&quot;&gt;10&lt;/option&gt;
+      &lt;option value=&quot;10&quot;&gt;10&lt;/option&gt;
       &lt;option value=&quot;20&quot;&gt;20&lt;/option&gt;
       &lt;option value=&quot;30&quot;&gt;30&lt;/option&gt;
       &lt;option value=&quot;40&quot;&gt;40&lt;/option&gt;
+      &lt;option value=&quot;all&quot;&gt;All Rows&lt;/option&gt;
     &lt;/select&gt;
   &lt;/form&gt;
 &lt;/div&gt;</pre>
@@ -636,7 +466,7 @@ td.tablesorter-pager {
 	<a id="change-log"></a>
 	<h1>Pager Change Log</h1>
 	<ul>
-		<li>Moved to <a href="https://github.com/Mottie/tablesorter/wiki/Change2">wiki pages</a>.</li>
+		<li>Moved to <a href="https://github.com/Mottie/tablesorter/wiki/Changes">wiki pages</a>.</li>
 	</ul>
 
 
@@ -645,4 +475,3 @@ td.tablesorter-pager {
 
 </body>
 </html>
-

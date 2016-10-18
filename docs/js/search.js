@@ -33,6 +33,7 @@ jQuery(function($){
 		search = window.location.search,
 		$results = [],
 		index = 0,
+		menuWidth = 250,
 		$window = $(window),
 		$main = $('#main'),
 		$search = $('.search').val(''), // Firefox retains the input value
@@ -66,19 +67,23 @@ jQuery(function($){
 		},
 		jumpTo = function(){
 			if (resultsLength) {
-				var resultPosition, parentPosition,
+				var resultPosition, parentPosition, leftPosition,
 					$current = $results.eq(index),
 					$collapsible = $current.closest('.collapsible, tr[id]');
 				if ($collapsible.length && $collapsible.is(':hidden')) {
 					$collapsible.slideToggle();
 				}
 				if ($current.length) {
-					resultPosition = $current.position().top;
-					parentPosition = $collapsible.length ? $current.closest('tr[id]').position().top : resultPosition;
+					resultPosition = $current.offset().top;
+					parentPosition = $collapsible.length ? $current.closest('tr[id]').offset().top : resultPosition;
 					if (parentPosition + $(window).height() < resultPosition) {
 						parentPosition = resultPosition;
 					}
-					$window.scrollTop( parentPosition - 28 );
+					leftPosition = 0;
+					if ( $current.position().left > $(window).width() - menuWidth ) {
+						leftPosition = $(window).width();
+					}
+					window.scrollTo( leftPosition, parentPosition - 28 );
 				}
 			}
 			updateStatus();
@@ -138,6 +143,12 @@ jQuery(function($){
 	$main.on('click', '.highlight', function(){
 		index = $results.index(this);
 		updateStatus();
+	});
+	$('#main-nav-check').on('change', function(){
+		var isChecked = this.checked;
+		setTimeout(function(){
+			$status.tipsy( isChecked ? 'show' : 'hide' );
+		}, 250);
 	});
 
 	$('.tooltip-bottom').tipsy({ gravity: 'n' });

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
- <meta charset="utf-8">
-	<title>jQuery plugin: Tablesorter 2.0 - headerTitles widget</title>
+	<meta charset="utf-8">
+	<title>jQuery tablesorter 2.0 - headerTitles widget</title>
 
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
 	<link rel="stylesheet" href="css/jq.css">
 	<link href="css/prettify.css" rel="stylesheet">
 	<link href="css/tipsy.css" rel="stylesheet">
-	<link class="ui-theme" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/cupertino/jquery-ui.css">
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link class="ui-theme" rel="stylesheet" href="css/jquery-ui.min.css">
+	<script src="js/jquery-ui.min.js"></script>
 	<script src="js/prettify.js"></script>
 	<script src="js/docs.js"></script>
 	<script src="js/jquery.tipsy.min.js"></script>
@@ -145,6 +145,7 @@
 				<li>This widget adds a title to the table headers when they are sorted.</li>
 				<li>Click on any header. You may have to move the mouse off, then back on the header to see the title appear.</li>
 				<li>This widget will not work with the original tablesorter plugin (v2.0.5).</li>
+				<li>The examples uses the <a href="http://onehackoranother.com/projects/jquery/tipsy/">tipsy jQuery plugin </a></li>
 			</ul>
 		</div>
 
@@ -263,7 +264,7 @@ headerTitle_output_nosort   : 'No sort available'</pre>
 	<div id="demo">
 
 	<h3>Tooltip plugin using togglable aria-label text</h3>
-	<button>use aria-label</button>: <span id="usearia" class="bright">true</span>
+	<button type="button">use aria-label</button>: <span id="usearia" class="bright">true</span>
 
 	<table id="table1">
 		<thead>
@@ -317,4 +318,3 @@ headerTitle_output_nosort   : 'No sort available'</pre>
 
 </body>
 </html>
-

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
- <meta charset="utf-8">
-	<title>jQuery plugin: Tablesorter 2.0 - Pager Widget - Ajax</title>
+	<meta charset="utf-8">
+	<title>jQuery tablesorter 2.0 - Pager Widget - Ajax</title>
 
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	<script src="js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
 	<link href="css/jq.css" rel="stylesheet">
@@ -39,7 +39,8 @@
 			widgetOptions: {
 
 				// output default: '{page}/{totalPages}'
-				// possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+				// possible variables: {size}, {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+				// also {page:input} & {startRow:input} will add a modifiable input in place of the value
 				pager_output: '{startRow} - {endRow} / {filteredRows} ({totalRows})', //'{startRow} to {endRow} of {totalRows} rows', // '{page}/{totalPages}'
 
 				// apply disabled classname to the pager arrows when the rows at either extreme is visible
@@ -62,26 +63,34 @@
 				// setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
 				pager_removeRows: false, // removing rows in larger tables speeds up the sort
 
-				// use this format: "http://mydatabase.com?page={page}&size={size}&{sortList:col}&{filterList:fcol}"
-				// where {page} is replaced by the page number, {size} is replaced by the number of records to show,
+				// If you want to use ajaxUrl placeholders, here is an example:
+				// ajaxUrl: "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
+				// where {page} is replaced by the page number (or use {page+1} to get a one-based index),
+				// {size} is replaced by the number of records to show,
 				// {sortList:col} adds the sortList to the url into a "col" array, and {filterList:fcol} adds
 				// the filterList to the url into an "fcol" array.
 				// So a sortList = [[2,0],[3,0]] becomes "&col[2]=0&col[3]=0" in the url
 				// and a filterList = [[2,Blue],[3,13]] becomes "&fcol[2]=Blue&fcol[3]=13" in the url
 				pager_ajaxUrl: 'assets/City{page}.json?{filterList:filter}&{sortList:column}',
 
-				// modify the url after all processing has been applied
+				// use this option to manipulate and/or add additional parameters to the ajax url
 				pager_customAjaxUrl:  function(table, url) {
 						// manipulate the url string as you desire
-						// url += '&cPage=' + window.location.pathname;
+						// url += '&currPage=' + window.location.pathname;
 						// trigger my custom event
 						$(table).trigger('changingUrl', url);
 						// send the server the current page
 						return url;
 				},
 
+				// ajax error callback from $.tablesorter.showError function
+				// pager_ajaxError: function( config, xhr, settings, exception ){ return exception; };
+				// returning false will abort the error message
+				pager_ajaxError: null,
+
 				// modify the $.ajax object to allow complete control over your ajax requests
 				pager_ajaxObject: {
+					type: 'GET', // default setting
 					dataType: 'json'
 				},
 
@@ -100,11 +109,13 @@
 				// ]
 				pager_ajaxProcessing: function(data){
 					if (data && data.hasOwnProperty('rows')) {
-						var r, row, c, d = data.rows,
+						var indx, r, row, c, d = data.rows,
 						// total number of rows (required)
 						total = data.total_rows,
 						// array of header names (optional)
 						headers = data.headers,
+						// cross-reference to match JSON key within data (no spaces)
+						headerXref = headers.join(',').replace(/\s+/g,'').split(','),
 						// all rows: array of arrays; each internal array has the table cell data for that row
 						rows = [],
 						// len should match pager set size (c.size)
@@ -116,7 +127,12 @@
 							// cells
 							for ( c in d[r] ) {
 								if (typeof(c) === "string") {
-									row.push(d[r][c]); // add each table cell data to row array
+									// match the key with the header to get the proper column index
+									indx = $.inArray( c, headerXref );
+									// add each table cell data to row array
+									if (indx >= 0) {
+										row[indx] = d[r][c];
+									}
 								}
 							}
 							rows.push(row); // add new row array to rows array
@@ -140,7 +156,7 @@
 					prev        : '.prev',        // previous page arrow
 					next        : '.next',        // next page arrow
 					last        : '.last',        // go to last page arrow
-					goto        : '.gotoPage',    // go to page selector - select dropdown that sets the current page
+					gotoPage    : '.gotoPage',    // go to page selector - select dropdown that sets the current page
 					pageDisplay : '.pagedisplay', // location of where the "output" is displayed
 					pageSize    : '.pagesize'     // page size selector - select dropdown that sets the "size" option
 
@@ -162,24 +178,29 @@
 	<div id="main">
 
 	<p class="tip">
-			<em>NOTE!</em>
-			<ul>
-				<li>This pager WIDGET <em>can not</em> be applied to the original tablesorter.</li>
-				<li>Do not use this widget along with the pager plugin.</li>
-				<li>The pager.css file also works with this pager widget.</li>
-				<li>This widget is still in <span class="beta">development</span> as it has not been throughly tested.</li>
-				<li>Extensive documentation has not been included, as all functioning is essentially identical to the pager addon, but here are some important differences:
-					<ul>
-						<li>All of the options are now set within the <code>widgetOptions</code>.</li>
-						<li>Most option names have only been modified by adding <code>pager_</code> as a prefix.</li>
-						<li>Exceptions include moving all applied css class names into a <code>pager_css</code> option and all selectors into <code>pager_selectors</code>, including the original <code>container</code> option.</li>
-						<li>See the Javascript code below for a full example of how to use this widget with <strong>ajax</strong>.</li>
-					</ul>
-				</li>
-				<li>The "ID" column has a default filter setting of "&gt;30" and a descending sort, but neither is applied as this demo is not connected a server (just a basic JSON file).</li>
-			</ul>
+		<em>NOTE!</em>
 	</p>
+	<ul>
+		<li>
+			In <span class="version updated">v2.26.0</span>, a page size of "all" will be passed to the server when set; <span class="label warning">Note</span> this change may break current server methods on number of pages to return.
+			<br><br>
+		</li>
 
+		<li>This pager WIDGET <em>can not</em> be applied to the original tablesorter.</li>
+		<li>Do not use this widget along with the pager plugin.</li>
+		<li>The pager.css file also works with this pager widget.</li>
+		<li>This widget is still in <span class="beta">development</span> as it has not been throughly tested.</li>
+
+		<li>Extensive documentation has not been included, as all functioning is essentially identical to the pager addon, but here are some important differences:
+			<ul>
+				<li>All of the options are now set within the <code>widgetOptions</code>.</li>
+				<li>Most option names have only been modified by adding <code>pager_</code> as a prefix.</li>
+				<li>Exceptions include moving all applied css class names into a <code>pager_css</code> option and all selectors into <code>pager_selectors</code>, including the original <code>container</code> option.</li>
+				<li>See the Javascript code below for a full example of how to use this widget with <strong>ajax</strong>.</li>
+			</ul>
+		</li>
+		<li>The "ID" column has a default filter setting of "&gt;30" and a descending sort, but neither is applied as this demo is not connected a server (just a basic JSON file).</li>
+	</ul>
 
 	<h1>Demo</h1>
 Original Ajax url: <span id="origurl"></span><br>
@@ -187,7 +208,7 @@ Current Ajax url: <span id="url"></span>
 <br>
 <table class="tablesorter">
 	<thead>
-		<tr>
+		<tr class="tablesorter-ignoreRow">
 			<td class="pager sorter-false" colspan="5">
 				<img src="../addons/pager/icons/first.png" class="first" alt="First" />
 				<img src="../addons/pager/icons/prev.png" class="prev" alt="Prev" />
@@ -283,7 +304,7 @@ td.pager {
 	<h1>HTML</h1>
 	<div id="html">
 		<pre class="prettyprint lang-html">&lt;!-- jQuery --&gt;
-&lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;js/jquery-latest.min.js&quot;&gt;&lt;/script&gt;
 
 &lt;!-- Tablesorter: required --&gt;
 &lt;link href=&quot;css/theme.blue.css&quot; rel=&quot;stylesheet&quot;&gt;
@@ -296,7 +317,7 @@ td.pager {
 
 &lt;table class=&quot;tablesorter&quot;&gt;
   &lt;thead&gt;
-    &lt;tr&gt;
+    &lt;tr class=&quot;tablesorter-ignoreRow&quot;&gt;
       &lt;td class=&quot;pager&quot; colspan=&quot;5&quot;&gt;
         &lt;img src=&quot;../addons/pager/icons/first.png&quot; class=&quot;first&quot;/&gt;
         &lt;img src=&quot;../addons/pager/icons/prev.png&quot; class=&quot;prev&quot;/&gt;

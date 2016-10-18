@@ -2,14 +2,14 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>jQuery plugin: Tablesorter 2.0 - Custom Filter Widget Functions</title>
+	<title>jQuery tablesorter 2.0 - Custom Filter Widget Functions</title>
 
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
-	<link class="ui-theme" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/cupertino/jquery-ui.css">
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link class="ui-theme" rel="stylesheet" href="css/jquery-ui.min.css">
+	<script src="js/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="css/jq.css">
 	<link href="css/prettify.css" rel="stylesheet">
 	<script src="js/prettify.js"></script>
@@ -18,7 +18,8 @@
 	<!-- Tablesorter: required -->
 	<link rel="stylesheet" href="../css/theme.blue.css">
 	<script src="../js/jquery.tablesorter.js"></script>
-	<script src="../js/jquery.tablesorter.widgets.js"></script>
+	<script src="../js/widgets/widget-storage.js"></script>
+	<script src="../js/widgets/widget-filter.js"></script>
 
 	<script>
 	$(function(){
@@ -40,8 +41,25 @@
 
 			filters.val(''); // clear all filters
 			filters.eq(col).val(txt).trigger('search', false);
-
 			return false;
+		});
+
+		$('.accordion button[data-filter-column]').click(function(){
+			var filters = [],
+				$t = $(this),
+				col = $t.data('filter-column'), // zero-based index
+				txt = $t.data('filter-text') || $t.text(); // text to add to filter
+			filters[col] = txt;
+			$.tablesorter.setFilters( $('#demo table'), filters, true );
+			return false;
+		});
+
+		$('button.search-type').click(function(){
+			var c = $('#demo table')[0].config,
+				wo = c.widgetOptions,
+				search = wo.filter_searchFiltered = !wo.filter_searchFiltered;
+			$('#search-type').html( '' + search );
+			$.tablesorter.setFilters( c.$table, [ '', 'Evan' ], true );
 		});
 
 	});
@@ -92,10 +110,6 @@
 			// So typing in "a" will find "albert" but not "frank", both have a's; default is false
 			filter_startsWith  : false,
 
-			// if false, filters are collapsed initially, but can be revealed by hovering over the grey bar immediately
-			// below the header row. Additionally, tabbing through the document will open the filter row when an input gets focus
-			filter_hideFilters : false,
-
 			// Add select box to 4th column (zero-based index)
 			// each option has an associated function that returns a boolean
 			// function variables:
@@ -107,31 +121,31 @@
 
 				// Add select menu to this column
 				// set the column value to true, and/or add "filter-select" class name to header
-				// 0 : true,
+				// '.first-name' : true,
 
 				// Exact match only
-				1 : function(e, n, f, i, $r) {
+				1 : function(e, n, f, i, $r, c, data) {
 					return e === f;
 				},
 
 				// Add these options to the select dropdown (regex example)
 				2 : {
-					"A - D" : function(e, n, f, i, $r) { return /^[A-D]/.test(e); },
-					"E - H" : function(e, n, f, i, $r) { return /^[E-H]/.test(e); },
-					"I - L" : function(e, n, f, i, $r) { return /^[I-L]/.test(e); },
-					"M - P" : function(e, n, f, i, $r) { return /^[M-P]/.test(e); },
-					"Q - T" : function(e, n, f, i, $r) { return /^[Q-T]/.test(e); },
-					"U - X" : function(e, n, f, i, $r) { return /^[U-X]/.test(e); },
-					"Y - Z" : function(e, n, f, i, $r) { return /^[Y-Z]/.test(e); }
+					"A - D" : function(e, n, f, i, $r, c, data) { return /^[A-D]/.test(e); },
+					"E - H" : function(e, n, f, i, $r, c, data) { return /^[E-H]/.test(e); },
+					"I - L" : function(e, n, f, i, $r, c, data) { return /^[I-L]/.test(e); },
+					"M - P" : function(e, n, f, i, $r, c, data) { return /^[M-P]/.test(e); },
+					"Q - T" : function(e, n, f, i, $r, c, data) { return /^[Q-T]/.test(e); },
+					"U - X" : function(e, n, f, i, $r, c, data) { return /^[U-X]/.test(e); },
+					"Y - Z" : function(e, n, f, i, $r, c, data) { return /^[Y-Z]/.test(e); }
 				},
 
 				// Add these options to the select dropdown (numerical comparison example)
 				// Note that only the normalized (n) value will contain numerical data
 				// If you use the exact text, you'll need to parse it (parseFloat or parseInt)
 				4 : {
-					"< $10"      : function(e, n, f, i, $r) { return n < 10; },
-					"$10 - $100" : function(e, n, f, i, $r) { return n >= 10 && n <=100; },
-					"> $100"     : function(e, n, f, i, $r) { return n > 100; }
+					"< $10"      : function(e, n, f, i, $r, c, data) { return n < 10; },
+					"$10 - $100" : function(e, n, f, i, $r, c, data) { return n >= 10 && n <=100; },
+					"> $100"     : function(e, n, f, i, $r, c, data) { return n > 100; }
 				}
 			}
 
@@ -158,8 +172,26 @@
 		<h3><a href="#">Notes</a></h3>
 		<div>
 			<ul>
-				<li>In <span class="version">v2.14</span>, the <code>filter_saveFilters</code> option was added (default set to <code>false</code>); this demo has it set to <code>true</code> to provide an example.</li> 
-				<li>In <span class="version">v2.11</span>, the filter functions provide an additional parameter <code>$r</code> providing a jQuery object of the current row being searched by the filter.</li> 
+				<li>In <span class="version">v2.22.0</span>,
+					<ul>
+						<li>An additional <code>data</code> parameter was added to the filter functions. It is an object which contains all data provided to the filter type functions (see <a href="example-widget-filter-custom-search.html#how_to_add_custom_filter_types">all the data values here</a>).</li>
+						<li><span class="label warning">*WARNING*</span> In a future update, the filter function parameters will change to clean up the code (I know, it's messy)!
+							<pre class="prettyprint lang-js">filter_functions : {
+  // function(e, n, f, i, $r, c, data) {} <- current parameters
+  0 : function(c, data) {} // planned change (version undetermined)
+}</pre>The <code>e</code> (exact table cell text), <code>n</code> (normalized table cell text), <code>f</code> (filter input value), <code>i</code> (column index) and <code>$r</code> (current row; jQuery object) are all already included in the <code>data</code> object.<p></p></li>
+					</ul>
+				</li>
+				<li>In <span class="version">v2.21.0</span>, the filter functions provide an additional parameter <code>c</code> which is the <code>table.config</code>.</li>
+				<li>In <span class="version updated">v2.17.0</span>, the <code>filter_functions</code> column can also be referenced by using a jQuery selector (e.g. class name or ID).</li>
+				<li>In <span class="version">v2.16.3</span>,
+					<ul>
+						<li>When a default filter select is added to a column, it is now parsed from the assigned parser, then sorted using the <code>textSorter</code> setting, and falls back to an alphanumeric sort.</li>
+						<li>Adding a class of <code>"filter-select-nosort"</code> will now leave the select options unsorted.</li>
+					</ul>
+				</li>
+				<li>In <span class="version">v2.14</span>, the <code>filter_saveFilters</code> option was added (default set to <code>false</code>); this demo has it set to <code>true</code> to provide an example.</li>
+				<li>In <span class="version">v2.11</span>, the filter functions provide an additional parameter <code>$r</code> providing a jQuery object of the current row being searched by the filter.</li>
 				<li>For <span class="version">v2.10.8</span>, the Age column includes the new <code>data-value</code> set to <code>&lt;30</code> which sets the default (starting) filter value (see <a href="index.html#widget-filter-defaultattrib">filter_defaultAttrib</a> for more details).</li>
 				<li>As of tablesorter <span class="version">v2.9</span>, this widget can no longer be applied to versions of tablesorter prior to version 2.8.</li>
 				<li>Custom filter widget option <code>filter_functions</code> was added in version 2.3.6.</li>
@@ -174,13 +206,18 @@
 
   // Add select menu to this column
   // set the column value to true, and/or add &quot;filter-select&quot; class name to header
-  0 : true
+  '.first-name' : true
 
 }</pre>or add a &quot;filter-select&quot; class to the column header cell (see code below).</li>
 				<li>The default option text, &quot;Select a name&quot;, is obtained from the header <code>data-placeholder</code> attribute of the column header cell. And when active, it will show all table rows.<pre class="prettyprint lang-html">&lt;th class=&quot;filter-select&quot; data-placeholder=&quot;Select a name&quot;&gt;First Name&lt;/th&gt;</pre></li>
 				<li>Add a &quot;filter-match&quot; class to only match instead of exactly match the selected value. Click on the &quot;Match&quot; button below to see the difference.<pre class="prettyprint lang-html">&lt;th class=&quot;filter-select filter-match&quot; data-placeholder=&quot;Select a name&quot;&gt;First Name&lt;/th&gt;</pre></li>
 				<li>The select is populated by the column text contents with repeated content combined (i.e. There are three &quot;Aaron&quot;'s in the first column, but only one in the dropdown.</li>
-				<li>Select options are automatically alphanumerically (new in v2.4) sorted.</li>
+				<li>Select options are automatically <del>alphanumerically</del> (new in v2.4) sorted. Changed in <span class="version updated">v2.16.3</span>:
+					<ul>
+						<li>The select contents are now parsed from the assigned parser, then sorted using the <a href="index.html#textsorter"><code>textSorter</code></a> option</li>
+						<li>Add a class name of <code>"filter-select-nosort"</code> to prevent sorting the select options (<span class="version">v2.16.3</span>).</li>
+					</ul>
+				</li>
 				<li>Please check out what the &quot;filter-onlyAvail&quot; class name does by reviewing the details below (in the &quot;Discount&quot; column) (<span class="version">v2.10.1</span>).</li>
 			</ul>
 		</div>
@@ -191,14 +228,15 @@
 				<li>To enable this type of filter, add your custom function to the <code>filter_functions</code> option following this example:<pre class="prettyprint lang-javascript">filter_functions : {
 
   // Exact match only
-  1 : function(e, n, f, i, $r) {
+  1 : function(e, n, f, i, $r, c, data) {
     return e === f;
   }
 
 }</pre></li>
 				<li>The example shows you how to show only exact matches. The problem with this is that you can't see the matches while typing unless you set the <code>filter_searchDelay</code> option to be a bit longer.</li>
 				<li>Also, the example only checks for an exact match (<code>===</code>) meaning the <code>filter_ignoreCase</code> option is ignored, but other comparisons can be made using regex and the insensitive &quot;i&quot; flag.</li>
-				<li>See the filter function information below.</li>
+				<li><span class="label warning">*NOTE*</span> If using an exact match function like this, consider setting the <a href="index.html#widget-filter-searchfiltered"><code>filter_searchFiltered</code></a> option to false. If it were set to <code>true</code>, the filter widget wouldn't know to search through the entire contents of the column if the content were only slightly different. To see this problem, search for <button type="button" data-filter-column="1">Evan</button> in the "Last Name" column, then add an "s" to the end to find "Evans". No results will show up, unless the search filtered option is <code>false</code>.</li>
+				<li>See the filter function information below for more details about the function parameters.</li>
 			</ul>
 		</div>
 
@@ -211,13 +249,13 @@
 
   // Add these options to the select dropdown (regex example)
   2 : {
-    &quot;A - D&quot; : function(e, n, f, i, $r) { return /^[A-D]/.test(e); },
-    &quot;E - H&quot; : function(e, n, f, i, $r) { return /^[E-H]/.test(e); },
-    &quot;I - L&quot; : function(e, n, f, i, $r) { return /^[I-L]/.test(e); },
-    &quot;M - P&quot; : function(e, n, f, i, $r) { return /^[M-P]/.test(e); },
-    &quot;Q - T&quot; : function(e, n, f, i, $r) { return /^[Q-T]/.test(e); },
-    &quot;U - X&quot; : function(e, n, f, i, $r) { return /^[U-X]/.test(e); },
-    &quot;Y - Z&quot; : function(e, n, f, i, $r) { return /^[Y-Z]/.test(e); }
+    &quot;A - D&quot; : function(e, n, f, i, $r, c, data) { return /^[A-D]/.test(e); },
+    &quot;E - H&quot; : function(e, n, f, i, $r, c, data) { return /^[E-H]/.test(e); },
+    &quot;I - L&quot; : function(e, n, f, i, $r, c, data) { return /^[I-L]/.test(e); },
+    &quot;M - P&quot; : function(e, n, f, i, $r, c, data) { return /^[M-P]/.test(e); },
+    &quot;Q - T&quot; : function(e, n, f, i, $r, c, data) { return /^[Q-T]/.test(e); },
+    &quot;U - X&quot; : function(e, n, f, i, $r, c, data) { return /^[U-X]/.test(e); },
+    &quot;Y - Z&quot; : function(e, n, f, i, $r, c, data) { return /^[Y-Z]/.test(e); }
   }
 
 }</pre></li>
@@ -226,12 +264,12 @@
   // Note that only the normalized (n) value will contain numerical data
   // If you use the exact text, you'll need to parse it (parseFloat or parseInt)
   4 : {
-    &quot;< $10&quot;      : function(e, n, f, i, $r) { return n < 10; },
-    &quot;$10 - $100&quot; : function(e, n, f, i, $r) { return n >= 10 && n <=100; },
-    &quot;> $100&quot;     : function(e, n, f, i, $r) { return n > 100; }
+    &quot;&lt; $10&quot;      : function(e, n, f, i, $r, c, data) { return n &lt; 10; },
+    &quot;$10 - $100&quot; : function(e, n, f, i, $r, c, data) { return n &gt;= 10 && n &lt;=100; },
+    &quot;&gt; $100&quot;     : function(e, n, f, i, $r, c, data) { return n &gt; 100; }
   }
 }</pre></li>
-				<li>See the &quot;Filter function information&quot; section below.</li>
+				<li>See the &quot;Filter function information&quot; section below for more details about the function parameters.</li>
 			</ul>
 		</div>
 
@@ -255,7 +293,9 @@
 		<h3><a href="#"><strong>Filter function information</strong></a></h3>
 		<div>
 			<ul>
-				<li>The custom function must return a boolean value. If <code>true</code> is returned, the row will be shown if all other filters match; and if <code>false</code> is returned, the row will be hidden.<pre class="prettyprint lang-javascript">function(e, n, f, i, $r) { return test; /* test should be a Boolean (true or false) */ }</pre></li>
+				<li>The custom function must return a boolean value. If <code>true</code> is returned, the row will be shown if all other filters match; and if <code>false</code> is returned, the row will be hidden.
+				<pre class="prettyprint lang-javascript">function(e, n, f, i, $r, c, data) { return test; /* test should be a Boolean (true or false) */ }</pre>
+				</li>
 				<li>The <strong>exact text (e)</strong> of the table cell is a variable passed to the function. Note that numbers will need to be parsed to make comparisons.</li>
 				<li><strong>Normalized table cell data (n)</strong> is the next varibale passed to the function.
 					<ul>
@@ -268,21 +308,30 @@
 				</li>
 				<li>The <strong>filter input value (f)</strong> is the exact text entered by the user. If numerical, it will need to be parsed using parseFloat() or parseInt() to allow for making comparisons.</li>
 				<li>The <strong>column index (i)</strong> might be useful for obtaining more information from header, or something.</li>
-				<li>The <strong>row ($r)</strong> is the current table row (jQuery object) being searched (or filtered); this allows access to any extra information within. To access the current cell, just use <code>$r.children().eq(i)</code>.</li>
+				<li>The <strong>row ($r)</strong> is the current table row (jQuery object) being searched (or filtered).
+					<ul>
+						<li>This allows access to any extra information within. To access the current cell, just use <code>$r.children().eq(i)</code>.</li>
+						<li><span class="label alert">* NOTE *</span> The row object provided is <em>not</em> attached to the table, so using something like <code>.parent()</code> or <code>.closest()</code> will not work!</li>
+						<li>For this reason, the next parameter (<code>c</code>) was added.</li>
+					</ul>
+				</li>
+				<li>The <strong>config (c)</strong> is the <code>table.config</code> (added <span class="version">v2.21.0</span>).</li>
+				<li>The <strong>data</strong> parameter is the same data passed to the filter types (see <a href="example-widget-filter-custom-search.html#how_to_add_custom_filter_types">all the data values here</a>; added <span class="version">v2.22.0</span>).</li>
 			</ul>
 		</div>
 	</div>
 
 	<h1>Demo</h1>
-	<button type="button" class="match" data-filter-column="0" data-filter-text="Denni">Match</button> <span id="mode">false</span> (toggle &quot;filter-match&quot; class on First Name column)<br>
+	<button type="button" class="match" data-filter-column="0" data-filter-text="Denni">Toggle</button> <span id="mode" class="bright">false</span> &quot;filter-match&quot; class name on the "First Name" column<br>
+	<button type="button" class="search-type">Toggle</button> filter_searchFiltered : <span id="search-type" class="bright">true</span> (if true, the search is performed on already filtered rows, with some exceptions)<br>
 	<button type="button" class="reset">Reset Search</button>
 
 	<div id="demo"><table class="tablesorter">
 	<thead>
 		<tr>
-			<!-- add "filter-select" class or filter_functions : { 0: true } -->
+			<!-- add "filter-select" class or filter_functions : { '.first-name' : true } -->
 			<!-- add "filter-match" class to just match the content, so selecting "Denni" will also show "Dennis" -->
-			<th class="filter-select" data-placeholder="Select a name">First Name</th>
+			<th class="first-name filter-select" data-placeholder="Select a name">First Name</th>
 			<th data-placeholder="Exact matches only">Last Name</th>
 			<th data-placeholder="Choose a city">City</th>
 			<th data-value="<30">Age</th>
@@ -424,11 +473,10 @@
 
 <div class="next-up">
 	<hr />
-	Next up: <a href="example-widget-filter-formatter-1.html">jQuery custom filter widget formatter (jQuery UI widgets) &rsaquo;&rsaquo;</a>
+	Next up: <a href="example-widget-filter-custom-search.html">Custom Filter Widget Search Types &rsaquo;&rsaquo;</a>
 </div>
 
 </div>
 
 </body>
 </html>
-

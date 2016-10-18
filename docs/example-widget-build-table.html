@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<title>jQuery plugin: Tablesorter 2.0 - Build Table Widget</title>
+	<title>jQuery tablesorter 2.0 - Build Table Widget</title>
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
-	<link class="ui-theme" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/cupertino/jquery-ui.css">
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<link class="ui-theme" rel="stylesheet" href="css/jquery-ui.min.css">
+	<script src="js/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="css/jq.css">
 	<link href="css/prettify.css" rel="stylesheet">
 	<script src="js/prettify.js"></script>
@@ -261,7 +261,7 @@
 		<div>
 			Add the following required scripts and css files into the document <code>&lt;head&gt;</code>
 			<pre class="prettyprint lang-html">&lt;!-- jQuery --&gt;
-&lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;js/jquery-latest.min.js&quot;&gt;&lt;/script&gt;
 
 &lt;!-- Tablesorter: required --&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;../css/theme.blue.css&quot;&gt; &lt;!-- choose any theme --&gt;
@@ -281,7 +281,7 @@
 					<ul>
 						<li>(<code>build_headers</code> &amp; <code>build_footers</code>) have been added allowing customizing the headers and/or footers.</li>
 						<li>The <code>rows</code> option sets the number of headers rows to include from the data source. <strong>Zero is not an option</strong> since tablesorter requires a thead in place before it will initialize.</li>
-						<li>The <code>classes</code> array sets each header cell (<code>th</code>) class name.</li> 
+						<li>The <code>classes</code> array sets each header cell (<code>th</code>) class name.</li>
 						<li>The <code>text</code> array within these options will override any text obtained from the data source.</li>
 						<li>The <code>widths</code> array, only in the <code>build_headers</code> option, sets column widths by building <code>&lt;col&gt;</code> elements within a <code>&lt;colgroup</code>.</li>
 						<li>Adding class names to the tbody rows or cells isn't easily accomplished, but you can bind to the build complete event (<code>'tablesorter-build-complete'</code>) and add them yourself.</li>
@@ -306,6 +306,7 @@
 
 	$('#array2Table').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions : {
 			// build_type   : 'array', // can sometimes be detected if undefined
 			build_source : arry,
@@ -349,6 +350,7 @@
 			<pre class="prettyprint lang-js">$(function() {
 	$('#string2Table').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions: {
 			build_type   : 'array',
 			build_source : 'header 1,header 2,header 3;r1c1,r1c2,r1c3;r2c1,r2c2,r2c3;r3c1,r3c2,r3c3;"footer, 1","footer, 2","footer, 3"',
@@ -381,7 +383,7 @@
 							<ul>
 								<li>(<code>build_headers</code> &amp; <code>build_footers</code>) have been added allowing customizing the headers and/or footers.</li>
 								<li>The <code>rows</code> option sets the number of headers rows to include from the data source. <strong>Zero is not an option</strong> since tablesorter requires a thead in place before it will initialize.</li>
-								<li>The <code>classes</code> array sets each header cell (<code>th</code>) class name.</li> 
+								<li>The <code>classes</code> array sets each header cell (<code>th</code>) class name.</li>
 								<li>The <code>text</code> array within these options will override any text obtained from the data source.</li>
 								<li>The <code>widths</code> array, only in the <code>build_headers</code> option, sets column widths by building <code>&lt;col&gt;</code> elements within a <code>&lt;colgroup</code>.</li>
 								<li>Adding class names to the tbody rows or cells isn't easily accomplished, but you can bind to the build complete event (<code>'tablesorter-build-complete'</code>) and add them yourself.</li>
@@ -430,6 +432,7 @@
 			<pre class="prettyprint lang-js">$(function() {
 	$('#csv2Table').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions: {
 			// *** build widget core ***
 			build_type      : 'csv',
@@ -495,10 +498,11 @@ Album,Artist,Price ($)</pre>
 			<pre class="prettyprint lang-js">$(function() {
 	$('#csv2Table2').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions: {
 			// *** build widget core ***
 			build_type      : 'csv',
-			build_source    : { url: 'assets/csv.txt', dataType: 'html' },
+			build_source    : { url: 'assets/csv.txt', dataType: 'text' },
 			build_headers   : {
 				widths  : ['30%', '50%', '20%'] // set header cell widths
 			}
@@ -664,6 +668,7 @@ Album,Artist,Price ($)</pre>
 
 	$('#object2Table').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		data : dataObject, // same as using build_source (build_source would override this)
 		widgetOptions : {
 			// *** build object options ***
@@ -696,33 +701,45 @@ Album,Artist,Price ($)</pre>
 				<li>Always verify that the JSON is valid (use <a href="http://jsonlint.com/">JSONLint</a>) and realize that browsers like Chrome will not allow you to access locally hosted (desktop) JSON files. Test it with Firefox instead.</li>
 			</ul>
 
+			<h3>Javascript</h3>
+			<pre class="prettyprint lang-js">$(function() {
+	$('#object2Table2').tablesorter({
+		theme: 'blue',
+		widgets: ['zebra'],
+		widgetOptions: {
+			build_type   : 'json',
+			build_source : { url: 'assets/build.json', dataType: 'json' }
+		}
+	});
+});</pre>
+
 			<h3>Build.json file</h3>
 			<pre class="prettyprint lang-js">{
-	"headers" : [
+	"headers": [
 		[
 			{ "text": "First Name", "class": "fname", "width": "20%" },
 			"Last Name",
-			{ "text": "Age", "class": "age", "data-sorter" : false },
+			{ "text": "Age", "class": "age", "data-sorter": false },
 			"Total",
-			{ "text": "Discount", "class" : "sorter-false" },
-			{ "text": "Date", "class" : "date" }
+			{ "text": "Discount", "class": "sorter-false" },
+			{ "text": "Date", "class": "date", "width": "20%" }
 		]
 	],
-	"footers" : "clone",
-	"rows" : [
+	"footers": "clone",
+	"rows": [
 		[ "Peter", "Parker", 28, "$9.99",  "20%", "Jul 6, 2006 8:14 AM"   ],
 		[ "John",  "Hood",   33, "$19.99", "25%", "Dec 10, 2002 5:14 AM"  ],
 		[ "Clark", "Kent",   18, "$15.89", "44%", "Jan 12, 2003 11:14 AM" ],
 
 		{ "newTbody": true, "class": "tablesorter-infoOnly" },
-		{ "cells" : [ { "html": "<strong>JSON Info Row</strong>", "colspan": 6 } ] },
+		{ "cells": [ { "html": "<strong>JSON Info Row</strong>", "colspan": 6 } ] },
 
-		{ "newTbody" : true },
+		{ "newTbody": true },
 		[ "Bruce", "Evans",    22, "$13.19",  "11%", "Jan 18, 2007 9:12 AM"  ],
-		[ "Bruce", "Almighty", 45, "$153.19", "44%", "Jan 18, 2001 9:12 AM"  ],
+		[ "Brice", "Almighty", 45, "$153.19", "44%", "Jan 18, 2001 9:12 AM"  ],
 
 		{ "class": "specialRow",
-			"cells" : [
+			"cells": [
 				{ "text": "Fred", "class": "fname" },
 				{ "text": "Smith", "class": "lname" },
 				{ "text": 18, "class": "age", "data-info": "fake ID!, he's only 16" },
@@ -730,22 +747,107 @@ Album,Artist,Price ($)</pre>
 				"8%",
 				{ "text": "Aug 20, 2012 10:15 AM", "class": "date" }
 			],
-			"data-info" : "This row likes turtles"
+			"data-info": "This row likes turtles"
 		}
 	]
 }</pre>
-			<h3>HTML</h3>
+			<h3>HTML (before)</h3>
 			<pre class="prettyprint lang-html">&lt;div id=&quot;object2Table2&quot;&gt;&lt;/div&gt;</pre>
-			<h3>Javascript</h3>
-			<pre class="prettyprint lang-js">$(function() {
-	$('#object2Table2').tablesorter({
-		theme: 'blue',
-		widgetOptions: {
-			build_type   : 'json',
-			build_source : { url: 'assets/build.json', dataType: 'json' }
-		}
-	});
-});</pre>
+
+			<h3>HTML (after)</h3>
+			<pre class="prettyprint lang-html">&lt;div id=&quot;object2Table2&quot;&gt;
+	&lt;table class=&quot;tablesorter tablesorter-blue&quot; role=&quot;grid&quot;&gt;
+		&lt;colgroup&gt;
+			&lt;col style=&quot;width: 20%;&quot;&gt;
+			&lt;col&gt;
+			&lt;col&gt;
+			&lt;col&gt;
+			&lt;col&gt;
+			&lt;col style=&quot;width: 20%;&quot;&gt;
+		&lt;/colgroup&gt;
+		&lt;thead&gt;
+			&lt;tr&gt;
+				&lt;th class=&quot;fname&quot;&gt;First Name&lt;/th&gt;
+				&lt;th&gt;Last Name&lt;/th&gt;
+				&lt;th class=&quot;age&quot; data-sorter=&quot;false&quot;&gt;Age&lt;/th&gt;
+				&lt;th&gt;Total&lt;/th&gt;
+				&lt;th class=&quot;sorter-false&quot;&gt;Discount&lt;/th&gt;
+				&lt;th class=&quot;date&quot;&gt;Date&lt;/th&gt;
+			&lt;/tr&gt;
+		&lt;/thead&gt;
+		&lt;tbody&gt;
+			&lt;tr&gt;
+				&lt;td&gt;Peter&lt;/td&gt;
+				&lt;td&gt;Parker&lt;/td&gt;
+				&lt;td&gt;28&lt;/td&gt;
+				&lt;td&gt;$9.99&lt;/td&gt;
+				&lt;td&gt;20%&lt;/td&gt;
+				&lt;td&gt;Jul 6, 2006 8:14 AM&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td&gt;John&lt;/td&gt;
+				&lt;td&gt;Hood&lt;/td&gt;
+				&lt;td&gt;33&lt;/td&gt;
+				&lt;td&gt;$19.99&lt;/td&gt;
+				&lt;td&gt;25%&lt;/td&gt;
+				&lt;td&gt;Dec 10, 2002 5:14 AM&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td&gt;Clark&lt;/td&gt;
+				&lt;td&gt;Kent&lt;/td&gt;
+				&lt;td&gt;18&lt;/td&gt;
+				&lt;td&gt;$15.89&lt;/td&gt;
+				&lt;td&gt;44%&lt;/td&gt;
+				&lt;td&gt;Jan 12, 2003 11:14 AM&lt;/td&gt;
+			&lt;/tr&gt;
+		&lt;/tbody&gt;
+		&lt;tbody class=&quot;tablesorter-infoOnly&quot;&gt;
+			&lt;tr&gt;
+				&lt;td colspan=&quot;6&quot;&gt;
+					&lt;strong&gt;JSON Info Row&lt;/strong&gt;
+				&lt;/td&gt;
+			&lt;/tr&gt;
+		&lt;/tbody&gt;
+		&lt;tbody&gt;
+			&lt;tr&gt;
+				&lt;td&gt;Bruce&lt;/td&gt;
+				&lt;td&gt;Evans&lt;/td&gt;
+				&lt;td&gt;22&lt;/td&gt;
+				&lt;td&gt;$13.19&lt;/td&gt;
+				&lt;td&gt;11%&lt;/td&gt;
+				&lt;td&gt;Jan 18, 2007 9:12 AM&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td&gt;Brice&lt;/td&gt;
+				&lt;td&gt;Almighty&lt;/td&gt;
+				&lt;td&gt;45&lt;/td&gt;
+				&lt;td&gt;$153.19&lt;/td&gt;
+				&lt;td&gt;44%&lt;/td&gt;
+				&lt;td&gt;Jan 18, 2001 9:12 AM&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr class=&quot;specialRow&quot; data-info=&quot;This row likes turtles&quot;&gt;
+				&lt;td class=&quot;fname&quot;&gt;Fred&lt;/td&gt;
+				&lt;td class=&quot;lname&quot;&gt;Smith&lt;/td&gt;
+				&lt;td class=&quot;age&quot; data-info=&quot;fake ID!, he&#39;s only 16&quot;&gt;18&lt;/td&gt;
+				&lt;td class=&quot;total&quot;&gt;$22.44&lt;/td&gt;
+				&lt;td&gt;8%&lt;/td&gt;
+				&lt;td class=&quot;date&quot;&gt;Aug 20, 2012 10:15 AM&lt;/td&gt;
+			&lt;/tr&gt;
+		&lt;/tbody&gt;
+		&lt;tfoot&gt;
+			&lt;tr&gt;
+				&lt;th class=&quot;fname&quot;&gt;First Name&lt;/th&gt;
+				&lt;th&gt;Last Name&lt;/th&gt;
+				&lt;th class=&quot;age&quot; data-sorter=&quot;false&quot;&gt;Age&lt;/th&gt;
+				&lt;th&gt;Total&lt;/th&gt;
+				&lt;th class=&quot;sorter-false&quot;&gt;Discount&lt;/th&gt;
+				&lt;th class=&quot;date&quot;&gt;Date&lt;/th&gt;
+			&lt;/tr&gt;
+		&lt;/tfoot&gt;
+	&lt;/table&gt;
+&lt;/div&gt;</pre>
+
+
 			<h3>Result</h3>
 			<div id="object2Table2" class="container"></div>
 

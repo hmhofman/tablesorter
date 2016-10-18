@@ -2,13 +2,13 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>jQuery plugin: Tablesorter 2.0 - Custom Filter Widget Formatter (jQuery UI widgets)</title>
+	<title>jQuery tablesorter 2.0 - Custom Filter Widget Formatter (jQuery UI widgets)</title>
 
 	<!-- jQuery -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
+	<script src="js/jquery-latest.min.js"></script>
 
 	<!-- Demo stuff -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="css/jq.css">
 	<link href="css/prettify.css" rel="stylesheet">
 	<script src="js/prettify.js"></script>
@@ -29,12 +29,12 @@
 .compare-select-wrapper { min-width: 60%; float: right; }</style>
 
 	<!-- Tablesorter: required; also include any of the jQuery UI themes -->
-	<link id="ui-theme" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/cupertino/jquery-ui.css">
+	<link id="ui-theme" rel="stylesheet" href="css/jquery-ui.min.css">
 	<link href="../css/theme.jui.css" rel="stylesheet">
 	<link href="../css/filter.formatter.css" rel="stylesheet">
 	<script src="../js/jquery.tablesorter.js"></script>
 	<script src="../js/jquery.tablesorter.widgets.js"></script>
-	<script src="../js/jquery.tablesorter.widgets-filter-formatter.js"></script>
+	<script src="../js/widgets/widget-filter-formatter-jui.js"></script>
 	<script>
 	$(function(){
 
@@ -73,8 +73,8 @@
 			// add custom selector elements to the filter row
 			filter_formatter : {
 
-				// Rank
-				0 : function($cell, indx){
+				// Rank (jQuery selector added v2.17.0)
+				'th:contains("Rank")' : function($cell, indx){
 					return $.tablesorter.filterFormatter.uiSlider( $cell, indx, {
 						delayed : true,
 						valueToHeader : false,
@@ -104,8 +104,8 @@
 					});
 				},
 
-				// Total
-				2 : function($cell, indx){
+				// Total (jQuery selector added v2.17.0)
+				'.total' : function($cell, indx){
 					return $.tablesorter.filterFormatter.uiRange( $cell, indx, {
 						delayed : false,
 						valueToHeader : false,
@@ -155,6 +155,12 @@
 						changeYear : true
 					});
 				}
+			},
+
+			// added v2.16
+			filter_placeholder : {
+				from : 'From...',
+				to   : 'To...'
 			}
 		}
 	});
@@ -178,7 +184,11 @@
 		<h3><a href="#">Notes</a></h3>
 		<div>
 			<ul>
-				<li>In version <span class="version">v2.15.0</span> the following changes were made:
+				<li>Oct 27, 2014 - added <a href="http://jsfiddle.net/Mottie/abkNM/4406/">a demo</a> to the <a href="https://github.com/Mottie/tablesorter/wiki">home wiki page</a> showing how to apply <a href="http://jqueryui.com/selectmenu/">jQuery's selectmenu widget</a> to a filter cell without using the filter formatter functions.</li>
+				<li>As of <span class="version">v2.17.5</span>, if writing a custom filterFormatter function, you'll need to call an additional function after initialization has completed so the "filterInit" event isn't triggered prematurely. See the "Custom Filter Formatter Function Information" section below for more details.</li>
+				<li>In <span class="version updated">v2.17.0</span>, the <code>filter_formatter</code> column can also be referenced by using a jQuery selector (e.g. class name or ID).</li>
+				<li>In <span class="version">v2.16.0</span>, the <code>filter_placeholder</code> option was added. See the jQuery UI Datepicker Range Selector section for more details.</li>
+				<li>In <span class="version">v2.15.0</span>, the following changes were made:
 					<ul>
 						<li>These updated filter widget functions are not completely backward compatible with older versions of the filter widget. Please update both!</li>
 						<li>Added <code>compare</code> &amp; <code>selected</code> options:
@@ -213,10 +223,10 @@
 						<li>Added <code>endOfDay</code> option for jQuery UI Datepicker.
 							<ul>
 								<li>When <code>true</code> search dates will include all times from the date chosen when a comparison is made of dates "less than" the set date.</li>
-								<li>Example 1: if a table entry has a date of "Jan 14, 2014 11:23 AM" and the filter search is set to <button data-column="4" data-value="<=1/14/2014">&lt;= 1/14/2014</button>, the table entry will be included in the search; the default set time would otherwise be "1/14/2014 00:00:00" and not include the entry from "11:23 AM". So, the <code>endOfDay</code> option sets the time to "23:59:59".</li>
-								<li>Example 2: if searching for one specific date, this option will now search for all times within that day. For example, searching for <button data-column="4" data-value="=1/20/2014">= 1/20/2014</button>, and the results will include dates from 1/20/2014 00:00:00 to 1/20/2014 23:59:59.</li>
+								<li>Example 1: if a table entry has a date of "Jan 14, 2014 11:23 AM" and the filter search is set to <button type="button" data-column="4" data-value="<=1/14/2014">&lt;= 1/14/2014</button>, the table entry will be included in the search; the default set time would otherwise be "1/14/2014 00:00:00" and not include the entry from "11:23 AM". So, the <code>endOfDay</code> option sets the time to "23:59:59".</li>
+								<li>Example 2: if searching for one specific date, this option will now search for all times within that day. For example, searching for <button type="button" data-column="4" data-value="=1/20/2014">= 1/20/2014</button>, and the results will include dates from 1/20/2014 00:00:00 to 1/20/2014 23:59:59.</li>
 								<li>When comparing dates greater than the set date, the time will be set to midnight; so this option will not be applied.</li>
-								<li>Example 3: in two date inputs, the <code>endOfDay</code> time is only applied to the "to" input; search for <button data-column="5" data-value="1/20/2014 - 1/20/2014">1/20/2014 - 1/20/2014</button></li>
+								<li>Example 3: in two date inputs, the <code>endOfDay</code> time is only applied to the "to" input; search for <button type="button" data-column="5" data-value="1/20/2014 - 1/20/2014">1/20/2014 - 1/20/2014</button></li>
 								<li>This option is available in both the comparison (one input) and range (two inputs; "to" date input only) date pickers.</li>
 							</ul>
 						</li>
@@ -236,7 +246,7 @@
 				<li>In <span class="version">v2.10.1</span> the <code>compare</code> option was added. This allows comparing the slider's value to the column value. The slider in the Age column is selecting values greater than or equal to itself.</li>
 				<li>A search delay was added in v2.7.11 (time set by <code>filter_searchDelay</code> option). It can be disabled by setting the <code>delayed</code> option to <code>false</code>.<br><br></li>
 				<li>This example shows how you can add a jQuery UI slider to filter column content.</li>
-				<li>The <code>filter_formatter</code> function provided in the extra "jquery.tablesorter.widgets-filter-formatter.js" file is used to add this custom control within the filter row.</li>
+				<li>The <code>filter_formatter</code> function provided in the extra "widget-filter-formatter-jui.js" file is used to add this custom control within the filter row.</li>
 				<li>Make sure to include all values within the selected range, otherwise rows outside of this range will be forever hidden.</li>
 				<li>Add the following code to apply a slider to filter a column:<pre class="prettyprint lang-javascript">$(function() {
 
@@ -252,8 +262,8 @@
       // add custom selector elements to the filter row
       filter_formatter : {
 
-        // Rank
-        0 : function($cell, indx){
+        // Rank (jQuery selector added v2.17.0)
+        'th:contains("Rank")' : function($cell, indx){
           return $.tablesorter.filterFormatter.uiSlider( $cell, indx, {
             // filterFormatter options
             cellText : 'Rank:',
@@ -261,7 +271,7 @@
             valueToHeader: false, // add current slider value to the header cell
             exactMatch: true,     // exact (true) or match (false)
             allText: 'all',       // text shown when the slider is at the minimum value
-            compare : [ '=', '>=', '<=' ], // any comparison would override the exactMatch option
+            compare : [ '=', '&gt;=', '&lt;=' ], // any comparison would override the exactMatch option
             selected : 2,         // zero-based index of compare starting selected value
 
             // add any of the jQuery UI Slider options here (http://api.jqueryui.com/slider/)
@@ -278,7 +288,7 @@
             valueToHeader: false, // add current slider value to the header cell
             exactMatch: false,    // exact (true) or match (false)
             allText: 'all',       // text shown when slider is at the minimum value; ignored when compare has a value
-            compare: [ '=', '>=', '<=' ], // search values greater/less than selected value; overrides exactMatch
+            compare: [ '=', '&gt;=', '&lt;=' ], // search values greater/less than selected value; overrides exactMatch
             selected : 1,         // zero-based index of compare starting selected value
 
             // add any of the jQuery UI Slider options here (http://api.jqueryui.com/slider/)
@@ -303,7 +313,7 @@
 		<div>
 			<ul>
 				<li>This example shows how you can add a jQuery UI range slider to filter column content.</li>
-				<li>The <code>filter_formatter</code> function provided in the extra "jquery.tablesorter.widgets-filter-formatter.js" file is used to add this custom control within the filter row.</li>
+				<li>The <code>filter_formatter</code> function provided in the extra "widget-filter-formatter-jui.js" file is used to add this custom control within the filter row.</li>
 				<li>Make sure to include all values within the selected range, otherwise rows outside of this range will be forever hidden.</li>
 				<li>The range slider is actually the same as the single slider described above, but was built to handle a range of values.</li>
 				<li>Add the following code to apply a range slider to filter a column:<pre class="prettyprint lang-javascript">$(function() {
@@ -320,8 +330,8 @@
       // add custom selector elements to the filter row
       filter_formatter : {
 
-        // Total column
-        2 : function($cell, indx){
+        // Total column (jQuery selector added v2.17.0)
+        '.total' : function($cell, indx){
           return $.tablesorter.filterFormatter.uiRange( $cell, indx, {
             delayed: true,        // delay search (set by filter_searchDelay)
             valueToHeader: false, // add current slider value to the header cell
@@ -349,7 +359,7 @@
 			<ul>
 				<li>In <span class="version">v2.15.0</span> the <code>compare</code> option was updated to allow adding a selector along with the input. The <code>selected</code> option allows choosing the default setting.<br><br></li>
 				<li>This example shows how you can add a jQuery UI spinner to filter column content.</li>
-				<li>The <code>filter_formatter</code> function provided in the extra "jquery.tablesorter.widgets-filter-formatter.js" file is used to add this custom control within the filter row.</li>
+				<li>The <code>filter_formatter</code> function provided in the extra "widget-filter-formatter-jui.js" file is used to add this custom control within the filter row.</li>
 				<li>Add the following code to apply a spinner to filter a column:<pre class="prettyprint lang-javascript">$(function() {
 
   $("table").tablesorter({
@@ -370,7 +380,7 @@
             delayed: true,    // delay search (set by filter_searchDelay)
             addToggle: false, // add a toggle switch to activate/deactive the search
             exactMatch: true, // exact (true) or match (false)
-            compare : [ '', '=', '>=', '<=' ], // search values greater/less than selected value; overrides exactMatch
+            compare : [ '', '=', '&gt;=', '&lt;=' ], // search values greater/less than selected value; overrides exactMatch
             selected : 2,     // zero-based index of compare starting selected value
 
             // add any of the jQuery UI Spinner options here (http://api.jqueryui.com/spinner/)
@@ -397,13 +407,13 @@
 				<li>In <span class="version">v2.15.0</span>
 					<ul>
 						<li>The <code>compare</code> option was updated to allow adding a selector along with the input. The <code>selected</code> option allows choosing the default setting.</li>
-						<li>A <code>endOfDay</code> option was added, which when a <code>&lt;=</code> comparison is made, will include all times within the selected day. Try searching for <button data-column="4" data-value="<=1/14/2014">&lt;= 1/14/2014</button>; it basically sets the time of the selected day to end at 23:59:59.</li>
-						<li>Additionally, when <code>endOfDay</code> option is <code>true</code> and using an exact (<code>=</code>) comparison, all times within that selected day will be included - try searching for <button data-column="4" data-value="=1/20/2014">= 1/20/2014</button> to note that the day include various times.</li>
+						<li>A <code>endOfDay</code> option was added, which when a <code>&lt;=</code> comparison is made, will include all times within the selected day. Try searching for <button type="button" data-column="4" data-value="<=1/14/2014">&lt;= 1/14/2014</button>; it basically sets the time of the selected day to end at 23:59:59.</li>
+						<li>Additionally, when <code>endOfDay</code> option is <code>true</code> and using an exact (<code>=</code>) comparison, all times within that selected day will be included - try searching for <button type="button" data-column="4" data-value="=1/20/2014">= 1/20/2014</button> to note that the day include various times.</li>
 					</ul>
 					<br>
 				</li>
 				<li>This example shows how you can add a jQuery UI Datepicker to compare to filter column content.</li>
-				<li>The <code>filter_formatter</code> function provided in the extra "jquery.tablesorter.widgets-filter-formatter.js" file is used to add this custom control within the filter row.</li>
+				<li>The <code>filter_formatter</code> function provided in the extra "widget-filter-formatter-jui.js" file is used to add this custom control within the filter row.</li>
 				<li>This code follows the <a class="external" href="http://jqueryui.com/datepicker/#default">default functionality</a> example from the jQuery UI docs.</li>
 				<li>Add the following code to apply a datepicker comparison selector to the filter row:<pre class="prettyprint lang-javascript">$(function() {
 
@@ -423,7 +433,7 @@
         4 : function($cell, indx){
           return $.tablesorter.filterFormatter.uiDateCompare( $cell, indx, {
             cellText : 'Dates', // text added before the input
-            compare : [ '', '=', '>=', '<=' ], // search values greater/less than selected value; overrides exactMatch
+            compare : [ '', '=', '&gt;=', '&lt;=' ], // search values greater/less than selected value; overrides exactMatch
             selected : 3,       // zero-based index of compare starting selected value
 
             // add any of the jQuery UI Datepicker options here (http://api.jqueryui.com/datepicker/)
@@ -450,9 +460,22 @@
 		<h3><a href="#"><strong>jQuery UI Datepicker Range Selector</strong></a> <span class="xsmall">("Date (two inputs)" column)</span></h3>
 		<div>
 			<ul>
-				<li>In <span class="version">v2.15.0</span>, an <code>endOfDay</code> option was added, which when <code>true</code> and searching within one day, all times within that selected day will be included - try searching for <button data-column="5" data-value="1/20/2014 - 1/20/2014">1/20/2014 - 1/20/2014</button> to note that the day include various times.<br></li>
+				<li>In <span class="version">v2.16.0</span>, a <code>filter_placeholder</code> option was added:
+					<ul>
+						<li>The option adds a search input placeholder and select (first option) text, but it also includes placeholder text for both the "from" and "to" inputs</li>
+						<li>Set it as follows:
+							<pre class="prettyprint lang-js">filter_placeholder : {
+	search : '', // any default search inputs including the datepicker comparison
+	from   : 'Date from...', // datepicker range "from" placeholder
+	to     : 'Date to...'  // datepicker range "to" placeholder
+}
+</pre></li>
+						<li><span class="label label-info">Note</span> The browser must support the <a href="http://caniuse.com/#feat=input-placeholder">placeholder attribute</a> before this text will be visible.</li>
+					</ul>
+				</li>
+				<li>In <span class="version">v2.15.0</span>, an <code>endOfDay</code> option was added, which when <code>true</code> and searching within one day, all times within that selected day will be included - try searching for <button type="button" data-column="5" data-value="1/20/2014 - 1/20/2014">1/20/2014 - 1/20/2014</button> to note that the day include various times.<br></li>
 				<li>This example shows how you can add a jQuery UI Datepicker range to filter column content.</li>
-				<li>The <code>filter_formatter</code> function provided in the extra "jquery.tablesorter.widgets-filter-formatter.js" file is used to add this custom control within the filter row.</li>
+				<li>The <code>filter_formatter</code> function provided in the extra "widget-filter-formatter-jui.js" file is used to add this custom control within the filter row.</li>
 				<li>This code follows the <a class="external" href="http://jqueryui.com/datepicker/#date-range">date range</a> example from the jQuery UI docs.</li>
 				<li>Updated two input functions so that if the "to" input is empty, all dates greater than the "from" date are shown. If the "from" input is empty, all dates less than the "to" input date are shown (<span class="version updated">v2.10.1</span>).</li>
 				<li>Add the following code to apply a datepicker range selector to the filter row:<pre class="prettyprint lang-javascript">$(function() {
@@ -470,7 +493,7 @@
       filter_formatter : {
 
         // Date (two inputs)
-        6 : function($cell, indx){
+        5 : function($cell, indx){
           return $.tablesorter.filterFormatter.uiDatepicker( $cell, indx, {
             // add any of the jQuery UI Datepicker options here (http://api.jqueryui.com/datepicker/)
             // from : '8/1/2013', // starting date
@@ -523,7 +546,8 @@
 					<pre class="prettyprint lang-javascript">$cell.closest('table').bind('filterFomatterUpdate', function(){
 	var savedSearch = $cell.find('input[type=hidden]').val();
 	// apply this saved search to your custom input
-});</pre>
+	$.tablesorter.filter.formatterUpdated($cell, indx); // new v2.17.5
+});</pre>As of <span class="version">v2.17.5</span>, you need to call <code>$.tablesorter.filter.formatterUpdated($cell, indx);</code> so the filter widget knows when all inputs have completed initialization, and fire the "filterInit" event.<br><br></li>
 				<li>If your selector needs a parsed value to work with, add the <code>filter-parsed</code> class name to the header cell above the filter, use this code to do that:
 					<pre class="prettyprint lang-javascript">$cell.closest('thead').find('th[data-column=' + indx + ']').addClass('filter-parsed');</pre>
 				</li>
@@ -546,7 +570,7 @@
 		<tr>
 			<th>Rank</th>
 			<th>Age</th>
-			<th>Total (range)</th>
+			<th class="total">Total (range)</th>
 			<th>Discount</th>
 			<th data-placeholder="Try 1/18/2013">Date (one input)</th>
 			<th>Date (two inputs; range)</th>
@@ -574,8 +598,8 @@
 	<h1>Page Header</h1>
 	<div>
 		<pre class="prettyprint lang-html">&lt;!-- jQuery UI for range slider --&gt;
-&lt;link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/cupertino/jquery-ui.css"&gt;
-&lt;script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" href="css/jquery-ui.min.css"&gt;
+&lt;script src="js/jquery-ui.min.js"&gt;&lt;/script&gt;
 
 &lt;!-- tablesorter plugin --&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;../css/theme.blue.css&quot;&gt;
@@ -584,7 +608,7 @@
 
 &lt;!-- filter formatter code --&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;../css/filter.formatter.css&quot;&gt;
-&lt;script src=&quot;../js/jquery.tablesorter.widgets-filter-formatter.js&quot;&gt;&lt;/script&gt;</pre>
+&lt;script src=&quot;../js/widgets/widget-filter-formatter-jui.js&quot;&gt;&lt;/script&gt;</pre>
 	</div>
 
 	<h1>CSS</h1>
@@ -611,4 +635,3 @@
 
 </body>
 </html>
-

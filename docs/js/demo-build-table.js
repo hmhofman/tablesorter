@@ -17,6 +17,7 @@ $(function(){
 	$('#array2Table').tablesorter({
 		theme: 'blue',
 		data : arry,
+		widgets: ['zebra'],
 		widgetOptions : {
 			// build_type   : 'array',  // can be detected if undefined
 			// build_source : arry,    // overrides the data setting above
@@ -34,6 +35,7 @@ $(function(){
 	// ***************************
 	$('#string2Table').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions: {
 			build_type   : 'array',
 			build_source : 'header 1,header 2,header 3;r1c1,r1c2,r1c3;r2c1,r2c2,r2c3;r3c1,r3c2,r3c3;"footer, 1","footer, 2","footer, 3"',
@@ -41,7 +43,7 @@ $(function(){
 				var rows = data.split(';');
 				return $.each(rows, function(i,cells) {
 					// similar to using rows[i] = cells.split(',') but the splitCSV script
-					// doesn't split the cell if the separator (comma) is within quotes 
+					// doesn't split the cell if the separator (comma) is within quotes
 					rows[i] = $.tablesorter.buildTable.splitCSV(cells, ',');
 				});
 			}
@@ -53,6 +55,7 @@ $(function(){
 	// ***************************
 	$('#csv2Table').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions: {
 			// *** build widget core ***
 			build_type      : 'csv',     // array, object, csv, ajax
@@ -87,10 +90,11 @@ $(function(){
 	// ***************************
 	$('#csv2Table2').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions: {
 			// *** build widget core ***
 			build_type      : 'csv',
-			build_source    : { url: 'assets/build.txt', dataType: 'html' },
+			build_source    : { url: 'assets/build.txt', dataType: 'text' },
 			build_headers   : {
 				widths : ['30%', '50%', '20%'] // set header cell widths
 			}
@@ -146,6 +150,7 @@ $(function(){
 	$('#object2Table').tablesorter({
 		theme: 'blue',
 		data : dataObject,
+		widgets: ['zebra'],
 		widgetOptions : {
 			// *** build object options ***
 			build_objectRowKey    : 'rows',    // object key containing table rows
@@ -160,6 +165,7 @@ $(function(){
 	// ***************************
 	$('#object2Table2').tablesorter({
 		theme: 'blue',
+		widgets: ['zebra'],
 		widgetOptions: {
 			build_type   : 'json',
 			build_source : { url: 'assets/build.json', dataType: 'json' }
